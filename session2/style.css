@@ -1,0 +1,19 @@
+h1, .text_red {
+    color: red;
+}
+
+#top {
+    font-size: 100px;
+}
+
+[type] {
+    color: violet;
+}
+
+[type="text"]{
+    color: black;
+}
+
+ul > li { /* con li ngay sau bo ul
+        
+}
