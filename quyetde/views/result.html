@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Result</title>
+    <script
+		src="http://code.jquery.com/jquery-3.3.1.min.js"
+		integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+		crossorigin="anonymous"></script>
+</head>
+<body>
+    <div id="question-content"></div>
+    <div id ="vote_yes"></div>
+    <div id="vote_no"></div>
+
+    <script>
+        const questionId = window.location.href.split('/')[window.location.href.split('/').length - 1];
+        $.ajax({
+            url: `/question_result`,
+            type: 'put',
+            data: {
+                id: questionId
+            },
+			success: function(data) {
+                let total_vote = Number(data.yes) + Number(data.no);
+
+                let vote_yes = Number(data.yes/total_vote)*100;
+
+                let vote_no = 100 - Number(vote_yes);
+
+                $("#vote_yes").text(vote_yes);
+                $("#vote_no").text(vote_no);
+				$('#question-content').text(data.content);
+            },
+            error: function(err) {
+                console.log(err);
+            }
+        })
+    </script>
+</body>
+</html>

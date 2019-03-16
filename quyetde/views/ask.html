@@ -1,33 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Quyet de</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>Quyết đê</title>
 </head>
 <body>
-    <nav>
-        <a href="/ask">Hoi nhanh</a>
-        <a href="/">Dap goi</a>
-    </nav>
-    <h1></h1>
-    <form method="POST" action="/addquestion">
-        <textarea name="question" id="questioninput" cols="30" rows="10" maxlength="200"></textarea>
-        <span id="remainchar">Con 200/200 ki tu</span>
-        <button type="submit">Gui</button>
-    </form>
-    <script>
-        const questioninputElem = document.getElementById("questioninput");
-        questioninputElem.addEventListener("input",() => {
-            const remainchar = 200 - questioninputElem.value.length;
-            if (remainchar == -1) {
-                document.getElementsByTagName('textarea').innerText = document.getElementsByTagName('textarea').innerText;
-            } else {
-                document.getElementById("remainchar").innerText = "Con"+ remainchar + "/200 ki tu"
-            }
-            
-        })
-    </script>
+	<nav>
+		<a href="/ask">Hỏi nhanh</a>
+		<a href="/">Đáp gọn</a>
+	</nav>
+	<h1>Hãy hỏi cộng đồng một câu hỏi đúng/sai hoặc có/không</h1>
+	<form method="POST" action="/addquestion">
+		<textarea id="questionInput" name="question" cols="30" rows="10"></textarea>
+		<span id="remainChar">Còn 200/200 ký tự</span>
+		<button>Gửi</button>
+	</form>
+
+	<script>
+		const questionInputElem = document.getElementById('questionInput');
+		questionInputElem.addEventListener("input", () => {
+			let remainChar = 200 - questionInputElem.value.length; // -200
+			if(remainChar <= 0) {
+				questionInputElem.value = questionInputElem.value.slice(0, 200);
+				remainChar = 200 - questionInputElem.value.length;
+			}
+			document.getElementById('remainChar').innerText = "Còn "+ remainChar +"/200 ký tự";
+		});
+	</script>
 </body>
 </html>
