@@ -1,88 +1,113 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const mongoose = require("mongoose")
 const fs = require('fs');
 const app = express();
+const QuestionModel = require("./models/question")
+
+mongoose.connect("mongodb://localhost:27017/web20_quyetde",(err) =>{
+	if(err) console.log(err)
+	else console.log("Connect success!!")
+	// QuestionModel.find({ },(err,docs)=>{
+	// 	if(err) console.log(err)
+	// 	else console.log(docs)
+		
+	// })
+})
 
 app.use(bodyParser.urlencoded({extended: false}));
 
 app.get("/", (req, res) => {
-	//TODO:
-	// - Lấy 1 câu hỏi ngẫu nhiên từ file dùng để lưu câu hỏi
-	// - Hiển thị ra màn hình như trang mẫu http://quyetde123.herokuapp.com/
-	// const questionList = JSON.parse(fs.readFileSync("./questions.json", "utf-8"));
-	// const randomQuestion = questionList[Math.floor(Math.random()*questionList.length)];
-	// res.send(`<h1>
-	// 	${randomQuestion}
-	// </h1>`);
 	res.sendFile(__dirname + "/views/home.html");
 });
 
 app.get("/randomquestion", (req, res) => {
-	const questionList = JSON.parse(fs.readFileSync("./questions.json", "utf-8"));
-	const randomQuestion = questionList[Math.floor(Math.random()*questionList.length)];
-	console.log(randomQuestion);
-	console.log(randomQuestion)
-	res.send(randomQuestion);
+	// const questionList = JSON.parse(fs.readFileSync("./questions.json", "utf-8"));
+
+	QuestionModel.find({},(err,questionList)=>{
+		if(err) console.log(err)
+		else res.send(questionList[Math.floor(Math.random()*questionList.length)]);
+		
+	})
+	
+	// const randomQuestion = questionList[Math.floor(Math.random()*questionList.length)];
+	// console.log(randomQuestion);
+	// res.send(randomQuestion);
 });
 
 app.get("/ask", (req, res) => {
 	res.sendFile(__dirname + "/views/ask.html");
 });
 
-app.put("/editquestion", (req, res) => {
-	const questionList = JSON.parse(fs.readFileSync("./questions.json", "utf-8"));
-	const question = req.body;
-	questionList[question.id] = question;
-	fs.writeFileSync("./questions.json", JSON.stringify(questionList));
-	res.send(question);
-});
+// app.put("/editquestion", (req, res) => {
+// 	const questionList = JSON.parse(fs.readFileSync("./questions.json", "utf-8"));
+// 	const question = req.body;
+// 	questionList[question.id] = question;
+// 	fs.writeFileSync("./questions.json", JSON.stringify(questionList));
+
+// 	// QuestionModel.find({ },(err,docs)=>{
+// 	// 	if(err) console.log(err)
+// 	// 	else console.log(docs)
+	
+// });
 
 app.post("/addquestion", (req, res) => {
-	const questionList = JSON.parse(fs.readFileSync("./questions.json", "utf-8"));
-	const question = {
-		content: req.body.question,
-		yes: 0,
-		no: 0,
-		id: questionList.length,
-	};
-	questionList.push(question);
-	fs.writeFileSync("./questions.json", JSON.stringify(questionList));
+	QuestionModel.create({content:req.body.question},(err,question)=>{
+		if(err) console.log(err)
+		else console.log("Success!!")
+	})
 	res.redirect("/ask");
 });
 
-// app.get("/vote/:questionId/yes", (req, res) => {
-// 	const questionList = JSON.parse(fs.readFileSync("./questions.json", "utf-8"));
-// 	const questionId = req.params.questionId;
-// 	questionList[questionId].yes = Number(questionList[questionId].yes) + 1;
-// 	// console.log(questionList);
-// 	fs.writeFileSync("./questions.json", JSON.stringify(questionList));
-// 	res.sendFile(__dirname + "/views/result.html");
-// });
+app.get("/vote/:questionId/yes", (req, res) => {
+	// console.log(req.params.questionId);
 
-// app.get("/vote/:questionId/no", (req, res) => {
-// 	const questionList = JSON.parse(fs.readFileSync("./questions.json", "utf-8"));
-// 	const questionId = req.params.questionId;
-// 	questionList[questionId].no = Number(questionList[questionId].no) + 1;
-// 	// console.log(questionList);
-// 	fs.writeFileSync("./questions.json", JSON.stringify(questionList));
-// 	res.sendFile(__dirname + "/views/result.html");
-// });
+	const questionId = req.params.questionId
 
-app.get("/result/:id", (req, res) => {
-	res.sendFile(__dirname + "/views/result.html");
+	QuestionModel.findOne({_id:questionId},(err,data) =>{
+		console.log(data);
+		if(data){
+			data.yes += 1;
+			data.save((err,docs)=>{
+				if(err) console.log(err)
+				res.redirect(`/question/${questionId}`);
+			})
+		}
+	})
 });
 
-app.put("/question_result",(req,res) => {
-	const questionId = req.body.id;
-	const questionList = JSON.parse(fs.readFileSync("./questions.json", "utf-8"));
-	var foundQuestion;
-	for (i = 0; i < questionList.length; i++) {
-		if (questionList[i]['id'] == questionId) {
-			foundQuestion = questionList[i];
-			break;
+app.get("/vote/:questionId/no", (req, res) => {
+	const questionId = req.params.questionId
+
+	QuestionModel.findOne({_id:questionId},(err,data) =>{
+		console.log(data);
+		if(data){
+			data.no += 1;
+			data.save((err,docs)=>{
+				if(err) console.log(err)
+				res.redirect(`/question/${questionId}`);
+			})
 		}
-	}
-	res.send(foundQuestion);
+	})
+	// const questionId = req.params.questionId;
+	// questionList[questionId].no = Number(questionList[questionId].no) + 1;
+	// fs.writeFileSync("./questions.json", JSON.stringify(questionList));
+	// res.redirect(`/question/${questionId}`);
+});
+
+app.get("/question/:questionId", (req, res) => {
+	res.sendFile(__dirname + "/views/questionInfo.html");
+});
+
+app.get("/detail/:questionId", (req, res) => {
+	QuestionModel.findOne({_id:req.params.questionId },(err,data)=>{
+		if(err) console.log(err)
+		else res.send(data)
+	})
+	// const questionId = req.params.questionId;
+	// const questionList = JSON.parse(fs.readFileSync("./questions.json", "utf-8"));
+	// const question = questionList[questionId];
+	// res.send(question);
 });
 
 // app.post("/", (req, res) => {

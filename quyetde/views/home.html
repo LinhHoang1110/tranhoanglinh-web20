@@ -16,76 +16,48 @@
 		<a href="/">Đáp gọn</a>
 	</nav>
 	<h1>Question</h1>
-
-	<button id="yes">Đúng/Có/Phải</button>
-
-
-	<button id="no">Sai/Không/Trái</button>
-
-
-
-	<button onclick="vote()">Kết quả vote</button>
-
-
+	<a href="#" id="no">
+		<button>Sai/Không/Trái</button>
+	</a>
+	<a href="#" id="yes">
+		<button>Đúng/Có/Phải</button>
+	</a>
+	<button>Kết quả vote</button>
 	<button>Câu hỏi khác</button>
 
-	
+	<!-- $("#yes, #no").on("click", function(event) {
+		console.log(event.target.id);
+		if (event.target.id == "yes") {
+			question.yes = Number(question.yes) + 1;
+		} else {
+			question.no = Number(question.no) + 1;
+		}
+		
+		$.ajax({
+			url: '/editquestion',
+			type: 'PUT',
+			data: {
+				question
+			},
+			success: function(data) {
+				console.log(data);
+			}
+		})
+	}); -->
 	<script>
 		let question;
-		var questionId;
 
 		$.ajax({
 			url: '/randomquestion',
 			success: function(questionData) {
+				console.log(questionData)
 				$('h1').text(questionData.content);
-				questionId = questionData.id;
+				console.log(questionData._id)
+				$('#yes').attr("href", `/vote/${questionData._id}/yes`);
+				$('#no').attr("href", `/vote/${questionData._id}/no`);
 				question = questionData;
-		}
+			}
 		});
-
-		$("#yes, #no").on("click", function(event) {
-			if(event.target.id === "yes"){
-				question.yes++;
-			} else question.no++;
-			$.ajax({
-				url: "/editquestion",
-				type: "PUT",
-				data: question,
-				success: function(data) {
-					window.location.href = `/result/${data.id}`;
-				},
-				error: function(err) {
-					console.log(err);
-				}
-			})
-		})
-			
-		function vote() {
-			window.location.href = `/result/${ questionId }`;
-		}
-		// $.ajax({
-		// 	url: '/randomquestion',
-		// 	success: function(questionData) {
-		// 		console.log(questionData)
-		// 		$('h1').text(questionData.content);
-		// 		$('#yes').attr("href", `/vote/${questionData.id}/yes`,$.ajax({
-
-		// 		}));
-		// 		$('#no').attr("href", `/vote/${questionData.id}/no`);
-		// 		$("#vote_result").attr("href",`/result/`);
-		// 		question = questionData;
-		// 	}
-		// });
-		// $.ajax({
-		// 	url:'/question_result',
-		// 	type: "PUT",
-		// 	data: {
-		// 		question
-		// 	},
-		// 	success: function(data){
-		// 		console.log(data)
-		// 	}
-		// })
 	</script>
 </body>
 </html>
