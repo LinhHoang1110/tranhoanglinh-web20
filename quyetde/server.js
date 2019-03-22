@@ -1,9 +1,8 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require("mongoose")
-const fs = require('fs');
 const app = express();
-const QuestionModel = require("./models/question")
+const QuestionModel = require("./models/question") 
 
 mongoose.connect("mongodb://localhost:27017/web20_quyetde",(err) =>{
 	if(err) console.log(err)

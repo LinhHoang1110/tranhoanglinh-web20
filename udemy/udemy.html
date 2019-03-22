@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>udemy</title>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+    <script
+		src="http://code.jquery.com/jquery-3.3.1.min.js"
+		integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+		crossorigin="anonymous"></script>
+</head>
+<body>
+    <img src="https://www.udemy.com/staticx/udemy/images/v6/logo-coral.svg" alt="">
+    <form action="">
+        <input id="myInput" oninput="myFunction()" type="text" placeholder="tu tim kiem..">
+        <button type="button">tim kiem</button>
+    </form>
+    <div id="result">
+
+    </div>
+    <i id="loading"  class="fas fa-spinner"></i>
+
+    <script>
+        var total_data
+        var search_input
+
+        function myFunction(){
+            var search = document.getElementById("myInput").value;
+            search_input = search
+        }
+       
+        $("button").on("click",() =>{
+            $("#result").html("")
+            $.ajax({
+                type: "GET",
+                url: `http://api.techkids.vn/udemy/courses?page=1&page_size=12&search=${search_input}`,
+                success: function(data){
+                    if(data.next != null){console.log(data)
+                    var i;
+                    
+                    for(i=0;i<data.results.length;i++){
+                         $("#result").append(`<div><img src="${data.results[i].image_240x135}" alt="">
+                                                    <h2>${data.results[i].title}</h2>
+                                                    <p>${data.results[i].price}</p></div>`)
+                    }
+                    total_data = data}
+                    else $("#result").html("not found")
+                }  
+            })
+            $(window).scroll(function(){
+                if($(window).scrollTop() == $(document).height() - $(window).height()){
+                    $.ajax({
+                        type: "GET",
+                        url: total_data.next,
+                        success:function(data){
+                            if(data.next != null){console.log(data)
+                            var i;
+                    
+                            for(i=0;i<data.results.length;i++){
+                                $("#result").append(`<div><img src="${data.results[i].image_240x135}" alt="">
+                                                    <h2>${data.results[i].title}</h2>
+                                                    <p>${data.results[i].price}</p></div>`)
+                            }
+                            total_data = data}
+                            else $("#result").html("not found")
+                        }
+                    })
+                }
+            })
+            $("#loading").ajaxStart(function(){
+                $(this).show()
+                
+            })
+            $("#loading").ajaxStop(function(){
+                $(this).hide()
+            })
+        })
+
+
+    </script>
+</body>
+</html>
